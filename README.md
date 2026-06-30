@@ -205,39 +205,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 }
 ```
 
-### Low-level API client
-
-Use `DynamicLinkClient` when you handle URLs yourself:
-
-```swift
-let client = DynamicLinkClient()
-
-// Fetch link by short code
-let response = try await client.linkDetails(shortCode: "abc123")
-
-// Deferred deep link (first install)
-let deferred = try await client.pendingRedirect(
-    appId: Bundle.main.bundleIdentifier ?? "",
-    deviceType: "IOS",
-    userAgent: SmartLinkingDefaults.userAgent
-)
-
-// Extract short_code from URL
-let code = DynamicLinkClient.extractShortCode(from: url.absoluteString)
-
-// Path fallback: https://backend-dynamiclink.tecocraft.us/abc123
-let code2 = DynamicLinkClient.extractShortCodeWithPathFallback(
-    from: url.absoluteString,
-    allowedHosts: client.pathShortCodeHosts
-)
-```
-
-Default API base URL:
-
-```text
-https://backend-dynamiclink.tecocraft.us/api/links
-```
-
 ---
 
 ## JSON payload and navigation
