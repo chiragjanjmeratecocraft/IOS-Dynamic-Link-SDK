@@ -1,4 +1,6 @@
-# DynamicLinkSDK
+# IOS Dynamic Link SDK
+
+**Repository:** [github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK](https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK)
 
 A native **Swift / iOS** SDK for **Deep Links**, **Universal Links**, and **Deferred Deep Links** using the Tecocraft Dynamic Link backend.
 
@@ -25,14 +27,14 @@ Add the package, wrap your app root with `SmartLinkingRoot`, and navigate using 
 In Xcode: **File → Add Package Dependencies…** and enter your repository URL:
 
 ```text
-https://github.com/YOUR_ORG/DynamicLink_SDK_GIT.git
+https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK.git
 ```
 
 Or add to `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/YOUR_ORG_tecocraft/DynamicLink_SDK_GIT.git", from: "1.0.0")
+    .package(url: "https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK.git", from: "1.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: ["DynamicLinkSDK"])
@@ -45,7 +47,7 @@ targets: [
 
 ---
 
-## Quick Start
+## Quick Start (60 seconds)
 
 ### 1. Register a URL scheme
 
@@ -285,13 +287,24 @@ onSuccess: { data in
 
 ---
 
-## Creating links
+## Generating links
 
-Use the **Dynamic Link Tool** web interface:
+Links are created and managed through the **Dynamic Link Tool** web interface:
 
-1. Log in and **Add Project** — enter your iOS **bundle ID**, store URL, and app details.
-2. **View Links → Add Link** — set title, URL scheme (must match `Info.plist`), and JSON payload.
-3. Share the generated link or use URLs with `?short_code=`.
+1. Register and log in to your account.
+2. Click **Add Project** and fill in your app details — **bundle ID**, store URL, and publication status.
+3. Inside the project, go to **View Links → Add Link**.
+4. Set the title, description, and URL scheme. The scheme must exactly match what is configured in `Info.plist`.
+5. Add a **JSON Data** payload to control in-app navigation:
+
+```json
+{
+  "screen": "user_detail",
+  "user_id": "u-101"
+}
+```
+
+6. Share the generated link or use URLs with `?short_code=`.
 
 The scheme in the tool and `Info.plist` must match exactly.
 
@@ -369,7 +382,15 @@ UserDefaultsFirstInstallStore.resetFirstInstallFlag()
 
 Then uninstall the app and repeat the install flow.
 
-**QA tip:** After the app has been published once, you can uninstall, tap the link, then run from Xcode instead of the store — the deferred payload may still be delivered on first launch.
+**QA tip — test updated routing without a new App Store release:** After the app has been published at least once:
+
+1. Implement the updated navigation logic in your codebase.
+2. Completely uninstall the app from your test device.
+3. Tap the dynamic link — the device is redirected to the App Store.
+4. **Do not install from the store.** Run the app directly from Xcode instead.
+5. The SDK delivers the deferred payload and your updated logic runs on first launch.
+
+> This bypass only works after the app has been published at least once.
 
 ---
 
@@ -392,6 +413,12 @@ xcrun simctl openurl booted "https://backend-dynamiclink.tecocraft.us/s/YOUR_SLU
 ```sh
 xcrun simctl openurl booted "https://backend-dynamiclink.tecocraft.us/s/YOUR_SLUG"
 ```
+
+### Deferred deep links
+
+The app must be published on the App Store. Tap the link on a device where the app is not installed — it redirects to the store, and after installation the SDK navigates to the intended screen on first launch.
+
+> If the app is not published, the deferred deep link response will be empty.
 
 ### Unit tests
 
@@ -488,8 +515,21 @@ See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and
 | JSON payload empty | Add JSON Data when creating the link in Dynamic Link Tool |
 | HTTP 404 on fetch | `short_code` does not exist in your project |
 | Deferred link returns nothing | App must be on App Store; runs once per install; reset first-install flag to retest |
+| Deferred deep link response empty | App must be published on the App Store at least once |
 | Navigation does not run | Handle routing inside `onSuccess`; check `screen` value in JSON |
 | Hosted `/s/…` parse fails | Page must include a recognizable JS or meta redirect |
+
+---
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
@@ -500,4 +540,5 @@ MIT © Tecocraft
 ## Support
 
 - Email: support@tecocraft.com
-- Issues: GitHub Issues
+- Issues: [GitHub Issues](https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK/issues)
+- Discussions: [GitHub Discussions](https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK/discussions)

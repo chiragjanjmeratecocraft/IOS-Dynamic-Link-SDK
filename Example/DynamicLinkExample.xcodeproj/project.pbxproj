@@ -1,0 +1,323 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		51E4219D292E4EB3904F5EE2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51E4219D292E4EB3904F5EE1 /* Assets.xcassets */; };
+		73125BD8CC3840479B1C4E9B /* DynamicLinkExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73125BD8CC3840479B1C4E9A /* DynamicLinkExampleApp.swift */; };
+		A1B2C3D40123456789ABCDE1 /* AppNavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDE2 /* AppNavigationStore.swift */; };
+		A1B2C3D40123456789ABCDE3 /* DeepLinkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDE4 /* DeepLinkRouter.swift */; };
+		A1B2C3D40123456789ABCDE5 /* DemoUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDE6 /* DemoUser.swift */; };
+		A1B2C3D40123456789ABCDE7 /* AllUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDE8 /* AllUsersView.swift */; };
+		A1B2C3D40123456789ABCDE9 /* UserDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDEA /* UserDetailView.swift */; };
+		A1B2C3D40123456789ABCDEB /* UserPortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDEC /* UserPortfolioView.swift */; };
+		A1B2C3D40123456789ABCDED /* HomeTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDEE /* HomeTabView.swift */; };
+		A1B2C3D40123456789ABCDEF /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40123456789ABCDE0 /* AppRoute.swift */; };
+		D36F5F3829A449A1967E410C /* DynamicLinkSDK in Frameworks */ = {isa = PBXBuildFile; productRef = D36F5F3829A449A1967E410B /* DynamicLinkSDK */; };
+		E28601090629482484AA93E9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E28601090629482484AA93E8 /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		37412FC62A194BA39799D404 /* DynamicLinkExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynamicLinkExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D5A0FFD06E7486E9044AE2A /* DynamicLinkExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DynamicLinkExample.entitlements; sourceTree = "<group>"; };
+		51E4219D292E4EB3904F5EE1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		73125BD8CC3840479B1C4E9A /* DynamicLinkExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicLinkExampleApp.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDE0 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDE2 /* AppNavigationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigationStore.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDE4 /* DeepLinkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkRouter.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDE6 /* DemoUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoUser.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDE8 /* AllUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUsersView.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDEA /* UserDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailView.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDEC /* UserPortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPortfolioView.swift; sourceTree = "<group>"; };
+		A1B2C3D40123456789ABCDEE /* HomeTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTabView.swift; sourceTree = "<group>"; };
+		B02320C9A3984C168FCAC67F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E28601090629482484AA93E8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9C20371F316F44B7AECD5AD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D36F5F3829A449A1967E410C /* DynamicLinkSDK in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8D89918F00E6479FA1D37055 = {
+			isa = PBXGroup;
+			children = (
+				970F6442B7EF42F1BCB60512 /* DynamicLinkExample */,
+				970F6442B7EF42F1BCB60511 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		970F6442B7EF42F1BCB60511 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				37412FC62A194BA39799D404 /* DynamicLinkExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		970F6442B7EF42F1BCB60512 /* DynamicLinkExample */ = {
+			isa = PBXGroup;
+			children = (
+				73125BD8CC3840479B1C4E9A /* DynamicLinkExampleApp.swift */,
+				E28601090629482484AA93E8 /* ContentView.swift */,
+				A1B2C3D40123456789ABCDEE /* HomeTabView.swift */,
+				A1B2C3D40123456789ABCDE8 /* AllUsersView.swift */,
+				A1B2C3D40123456789ABCDEA /* UserDetailView.swift */,
+				A1B2C3D40123456789ABCDEC /* UserPortfolioView.swift */,
+				A1B2C3D40123456789ABCDE2 /* AppNavigationStore.swift */,
+				A1B2C3D40123456789ABCDE4 /* DeepLinkRouter.swift */,
+				A1B2C3D40123456789ABCDE0 /* AppRoute.swift */,
+				A1B2C3D40123456789ABCDE6 /* DemoUser.swift */,
+				51E4219D292E4EB3904F5EE1 /* Assets.xcassets */,
+				B02320C9A3984C168FCAC67F /* Info.plist */,
+				3D5A0FFD06E7486E9044AE2A /* DynamicLinkExample.entitlements */,
+			);
+			path = DynamicLinkExample;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DA4474F0535D469E8C9EDBD9 /* DynamicLinkExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 15047A013C51475095D3BF48 /* Build configuration list for PBXNativeTarget "DynamicLinkExample" */;
+			buildPhases = (
+				02977C6A6A5C40DDA07E2C1D /* Sources */,
+				9C20371F316F44B7AECD5AD4 /* Frameworks */,
+				516D072B8C7C4711BC4074A6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DynamicLinkExample;
+			packageProductDependencies = (
+				D36F5F3829A449A1967E410B /* DynamicLinkSDK */,
+			);
+			productName = DynamicLinkExample;
+			productReference = 37412FC62A194BA39799D404 /* DynamicLinkExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F1767E935D684E89AC25AF69 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					DA4474F0535D469E8C9EDBD9 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A23B4FE469634C14B9EFD253 /* Build configuration list for PBXProject "DynamicLinkExample" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8D89918F00E6479FA1D37055;
+			packageReferences = (
+				236E63025C8C4427886DAF4D /* XCLocalSwiftPackageReference ".." */,
+			);
+			productRefGroup = 970F6442B7EF42F1BCB60511 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DA4474F0535D469E8C9EDBD9 /* DynamicLinkExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		516D072B8C7C4711BC4074A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51E4219D292E4EB3904F5EE2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		02977C6A6A5C40DDA07E2C1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73125BD8CC3840479B1C4E9B /* DynamicLinkExampleApp.swift in Sources */,
+				E28601090629482484AA93E9 /* ContentView.swift in Sources */,
+				A1B2C3D40123456789ABCDED /* HomeTabView.swift in Sources */,
+				A1B2C3D40123456789ABCDE7 /* AllUsersView.swift in Sources */,
+				A1B2C3D40123456789ABCDE9 /* UserDetailView.swift in Sources */,
+				A1B2C3D40123456789ABCDEB /* UserPortfolioView.swift in Sources */,
+				A1B2C3D40123456789ABCDE1 /* AppNavigationStore.swift in Sources */,
+				A1B2C3D40123456789ABCDE3 /* DeepLinkRouter.swift in Sources */,
+				A1B2C3D40123456789ABCDEF /* AppRoute.swift in Sources */,
+				A1B2C3D40123456789ABCDE5 /* DemoUser.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4F816C697A734E1698F43493 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4F816C697A734E1698F43494 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DynamicLinkExample/DynamicLinkExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KFSP6V59LR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DynamicLinkExample/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tecocraft.demo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1DCA9C5B431492CABBE760E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C1DCA9C5B431492CABBE760F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DynamicLinkExample/DynamicLinkExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KFSP6V59LR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DynamicLinkExample/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tecocraft.demo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		15047A013C51475095D3BF48 /* Build configuration list for PBXNativeTarget "DynamicLinkExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F816C697A734E1698F43494 /* Debug */,
+				C1DCA9C5B431492CABBE760F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A23B4FE469634C14B9EFD253 /* Build configuration list for PBXProject "DynamicLinkExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F816C697A734E1698F43493 /* Debug */,
+				C1DCA9C5B431492CABBE760E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		236E63025C8C4427886DAF4D /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D36F5F3829A449A1967E410B /* DynamicLinkSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 236E63025C8C4427886DAF4D /* XCLocalSwiftPackageReference ".." */;
+			productName = DynamicLinkSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F1767E935D684E89AC25AF69 /* Project object */;
+}
