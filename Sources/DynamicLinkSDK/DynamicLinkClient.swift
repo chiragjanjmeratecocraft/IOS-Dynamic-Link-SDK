@@ -5,26 +5,32 @@ import SwiftUI
 public let defaultDynamicLinkBaseURL = URL(string: "https://backend-dynamiclink.tecocraft.us/api/links")!
 
 public struct DynamicLinkConfiguration: Sendable {
-    public var baseURL: URL
-    public var timeout: TimeInterval
-    /// Hosts where `https://host/{code}` uses the last path segment as short code (Flutter `pathShortCodeHosts`).
-    public var pathShortCodeHosts: Set<String>?
+  public static let clientIdHeaderName = "clientId"
 
-    public init(
-        baseURL: URL = defaultDynamicLinkBaseURL,
-        timeout: TimeInterval = 10,
-        pathShortCodeHosts: Set<String>? = nil
-    ) {
-        self.baseURL = baseURL
-        self.timeout = timeout
-        if let pathShortCodeHosts {
-            self.pathShortCodeHosts = pathShortCodeHosts
-        } else if let host = baseURL.host?.lowercased() {
-            self.pathShortCodeHosts = [host]
-        } else {
-            self.pathShortCodeHosts = nil
-        }
+  public var baseURL: URL
+  public var timeout: TimeInterval
+  /// Per-project client id from the Dynamic Link Tool. Sent as the `clientId` HTTP header on API requests.
+  public var clientId: String?
+  /// Hosts where `https://host/{code}` uses the last path segment as short code (Flutter `pathShortCodeHosts`).
+  public var pathShortCodeHosts: Set<String>?
+
+  public init(
+    baseURL: URL = defaultDynamicLinkBaseURL,
+    timeout: TimeInterval = 10,
+    clientId: String? = nil,
+    pathShortCodeHosts: Set<String>? = nil
+  ) {
+    self.baseURL = baseURL
+    self.timeout = timeout
+    self.clientId = clientId
+    if let pathShortCodeHosts {
+      self.pathShortCodeHosts = pathShortCodeHosts
+    } else if let host = baseURL.host?.lowercased() {
+      self.pathShortCodeHosts = [host]
+    } else {
+      self.pathShortCodeHosts = nil
     }
+  }
 }
 
 /// Persists the same logical flag as RN `STORAGE_KEYS.HAS_FIRST_INSTALL` (AsyncStorage on RN; `UserDefaults` here).
@@ -79,6 +85,59 @@ public struct DynamicLinkClient: Sendable {
     /// Hosts used by ``extractShortCodeWithPathFallback(from:allowedHosts:)`` when `allowedHosts` is omitted.
     public var pathShortCodeHosts: Set<String>? { configuration.pathShortCodeHosts }
 
+    /// Site root used for share URLs (`https://host/{shortCode}`), derived from ``DynamicLinkConfiguration/baseURL``.
+    public var shareSiteRootURL: URL {
+        guard let host = configuration.baseURL.host?.lowercased() else {
+            return URL(string: "https://backend-dynamiclink.tecocraft.us")!
+        }
+        let scheme = configuration.baseURL.scheme ?? "https"
+        return URL(string: "\(scheme)://\(host)")!
+    }
+
+    /// Builds the HTTPS link to share after ``createPublicLink(_:)``.
+    public func shareURL(forShortCode shortCode: String) -> URL {
+        shareSiteRootURL.appendingPathComponent(shortCode, isDirectory: false)
+    }
+
+    /// `POST {baseURL}/public-link` — creates a short link for sharing (Flutter `_shareProduct` parity).
+    public func createPublicLink(_ request: PublicLinkCreateRequest) async throws -> PublicLinkCreateResult {
+        guard let clientId = Self.normalizedClientId(configuration.clientId) else {
+            throw DynamicLinkError.missingClientId
+        }
+
+        let url = configuration.baseURL.appendingPathComponent("public-link", isDirectory: false)
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        applyAPIHeaders(to: &urlRequest, contentTypeJSON: true, clientId: clientId)
+        urlRequest.httpBody = try JSONEncoder().encode(request)
+
+        Self.log("POST \(url.absoluteString) clientId=\(clientId)")
+
+        let (data, response) = try await session.data(for: urlRequest)
+        try Self.throwIfNeeded(response: response, data: data)
+
+        let bodyText = String(data: data, encoding: .utf8) ?? "<non-utf8 body>"
+        let envelope: DynamicLinkAPIEnvelope<PublicLinkCreateData>
+        do {
+            envelope = try JSONDecoder().decode(DynamicLinkAPIEnvelope<PublicLinkCreateData>.self, from: data)
+        } catch {
+            Self.log("public-link decode failed: \(error.localizedDescription)")
+            throw DynamicLinkError.decodingFailed("\(error.localizedDescription). Body: \(bodyText)")
+        }
+
+        guard let shortCode = envelope.data?.shortCode
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+            !shortCode.isEmpty
+        else {
+            throw DynamicLinkError.emptyResponse
+        }
+
+        return PublicLinkCreateResult(
+            shortCode: shortCode,
+            shareURL: shareURL(forShortCode: shortCode)
+        )
+    }
+
     /// `GET {baseURL}/code/{shortCode}` — same as RN `fetchDynamicLink`.
     public func linkDetails(shortCode: String) async throws -> DynamicLinkResponse {
         let url = configuration.baseURL
@@ -86,7 +145,7 @@ public struct DynamicLinkClient: Sendable {
             .appendingPathComponent(shortCode, isDirectory: false)
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = configuration.timeout
+        applyAPIHeaders(to: &request)
 
         let (data, response) = try await session.data(for: request)
         try Self.throwIfNeeded(response: response, data: data)
@@ -100,11 +159,7 @@ public struct DynamicLinkClient: Sendable {
         let url = configuration.baseURL.appendingPathComponent("pending-redirect")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.timeoutInterval = configuration.timeout
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let userAgent {
-            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
-        }
+        applyAPIHeaders(to: &request, contentTypeJSON: true, userAgent: userAgent)
         let body = PendingRedirectBody(appId: appId, deviceType: deviceType)
         request.httpBody = try JSONEncoder().encode(body)
 
@@ -240,6 +295,33 @@ public struct DynamicLinkClient: Sendable {
             throw DynamicLinkError.shortLinkRedirectNotFound
         }
         return destination
+    }
+
+    private func applyAPIHeaders(
+        to request: inout URLRequest,
+        contentTypeJSON: Bool = false,
+        userAgent: String? = nil,
+        clientId: String? = nil
+    ) {
+        request.timeoutInterval = configuration.timeout
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        if contentTypeJSON {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
+        if let userAgent {
+            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        }
+        let resolvedClientId = Self.normalizedClientId(clientId ?? configuration.clientId)
+        if let resolvedClientId {
+            request.setValue(resolvedClientId, forHTTPHeaderField: DynamicLinkConfiguration.clientIdHeaderName)
+        }
+    }
+
+    private static func normalizedClientId(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
     }
 
     private static func throwIfNeeded(response: URLResponse, data: Data) throws {

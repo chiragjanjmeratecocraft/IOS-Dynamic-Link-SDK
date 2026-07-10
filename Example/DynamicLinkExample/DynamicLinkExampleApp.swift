@@ -8,6 +8,7 @@ struct DynamicLinkExampleApp: App {
     var body: some Scene {
         WindowGroup {
             SmartLinkingRoot(
+                configuration: ExampleSDKConfiguration.dynamicLinkConfiguration,
                 options: SmartLinkingOptions(
                     onUrl: { url in
                         Task { @MainActor in

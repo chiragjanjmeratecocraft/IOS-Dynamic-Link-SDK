@@ -110,6 +110,53 @@ import Testing
     #expect(response.payloadJSON?.contains("\"extra\"") == true)
 }
 
+@Test func decodePublicLinkCreateResponse_readsShortCode() throws {
+    let json = """
+    {
+      "statusCode": 201,
+      "success": true,
+      "message": "ok",
+      "data": {
+        "short_code": "3SxE2G"
+      }
+    }
+    """
+    let data = try #require(json.data(using: .utf8))
+    let envelope = try JSONDecoder().decode(DynamicLinkAPIEnvelope<PublicLinkCreateData>.self, from: data)
+    #expect(envelope.data?.shortCode == "3SxE2G")
+}
+
+@Test func shareURL_usesSiteRootAndShortCode() {
+    let client = DynamicLinkClient()
+    let url = client.shareURL(forShortCode: "abc123")
+    #expect(url.absoluteString == "https://backend-dynamiclink.tecocraft.us/abc123")
+}
+
+@Test func encodePublicLinkCreateRequest_matchesAPI() throws {
+    let request = PublicLinkCreateRequest(
+        title: "TextMaster Testingg",
+        description: "Test deeplinking public",
+        iosScheme: "TravelproductDetail",
+        data: [
+            "screen_name": .string("product"),
+            "productId": .string("SKU-10026"),
+        ]
+    )
+    let data = try JSONEncoder().encode(request)
+    let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    #expect(object["title"] as? String == "TextMaster Testingg")
+    #expect(object["ios_scheme"] as? String == "TravelproductDetail")
+    #expect(object["android_scheme"] as? String == "TravelproductDetail")
+    #expect(object["projectId"] == nil)
+    let payload = try #require(object["data"] as? [String: Any])
+    #expect(payload["screen_name"] as? String == "product")
+    #expect(payload["productId"] as? String == "SKU-10026")
+}
+
+@Test func configuration_clientIdHeaderName_matchesAPI() {
+    #expect(DynamicLinkConfiguration.clientIdHeaderName == "clientId")
+}
+
 @Test func hostedShortLinkHTML_extractsSnapchatFromSample() {
     let html = #"""
     <meta http-equiv="refresh" content="0;url=https://www.snapchat.com/p/2508f100/story" />

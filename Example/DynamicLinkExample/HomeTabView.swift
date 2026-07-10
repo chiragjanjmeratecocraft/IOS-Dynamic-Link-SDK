@@ -16,6 +16,12 @@ struct HomeTabView: View {
                 }
             }
 
+            Section("Share from app") {
+                Text("Open any user → tap Share to call POST /public-link and open the iOS share sheet.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Simulate navigation (no API)") {
                 Button("screen: all_users") {
                     store.navigate(to: .allUsers)

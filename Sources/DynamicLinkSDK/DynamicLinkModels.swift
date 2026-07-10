@@ -175,11 +175,58 @@ struct PendingRedirectData: Decodable, Sendable {
     }
 }
 
+/// Request body for `POST /api/links/public-link` (create a shareable link from the app).
+/// The project is identified by the `clientId` HTTP header on ``DynamicLinkConfiguration``.
+public struct PublicLinkCreateRequest: Encodable, Sendable {
+    public let title: String
+    public let description: String
+    public let androidScheme: String
+    public let iosScheme: String
+    public let data: [String: DynamicLinkJSONValue]
+
+    public init(
+        title: String,
+        description: String,
+        iosScheme: String,
+        androidScheme: String? = nil,
+        data: [String: DynamicLinkJSONValue]
+    ) {
+        self.title = title
+        self.description = description
+        self.iosScheme = iosScheme
+        self.androidScheme = androidScheme ?? iosScheme
+        self.data = data
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case title, description, data
+        case androidScheme = "android_scheme"
+        case iosScheme = "ios_scheme"
+    }
+}
+
+/// Result of creating a public share link (`POST /api/links/public-link`).
+public struct PublicLinkCreateResult: Sendable, Equatable {
+    public let shortCode: String
+    /// HTTPS link to share, e.g. `https://backend-dynamiclink.tecocraft.us/{shortCode}`.
+    public let shareURL: URL
+}
+
+struct PublicLinkCreateData: Decodable, Sendable {
+    let shortCode: String
+
+    enum CodingKeys: String, CodingKey {
+        case shortCode = "short_code"
+    }
+}
+
 public enum DynamicLinkError: Error, Sendable, Equatable {
     case invalidURL
     case httpStatus(Int)
     case emptyResponse
     case decodingFailed(String)
+    /// `clientId` is required on ``DynamicLinkConfiguration`` for ``DynamicLinkClient/createPublicLink(_:)``.
+    case missingClientId
     /// `POST /pending-redirect` succeeded but returned no `data` (no deferred link for this install).
     case noPendingRedirect
     /// Short link HTML (`/s/…`) did not contain a recognizable redirect target.
@@ -198,6 +245,8 @@ extension DynamicLinkError: LocalizedError {
             return "Dynamic link API error (HTTP \(code))."
         case .emptyResponse:
             return "The API returned no link payload (empty data)."
+        case .missingClientId:
+            return "clientId is required. Set DynamicLinkConfiguration(clientId:) with the value from your Dynamic Link Tool project."
         case .decodingFailed(let message):
             return "Could not decode the API response: \(message)"
         case .noPendingRedirect:
