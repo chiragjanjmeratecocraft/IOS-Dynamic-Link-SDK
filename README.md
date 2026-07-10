@@ -2,9 +2,9 @@
 
 **Repository:** [github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK](https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK)
 
-A native **Swift / iOS** SDK for **Deep Links**, **Universal Links**, and **Deferred Deep Links** using the Tecocraft Dynamic Link backend.
+A native **Swift / iOS** SDK for **Deep Links**, **Universal Links**, **Deferred Deep Links**, and **in-app link sharing** using the Tecocraft Dynamic Link backend.
 
-Add the package, wrap your app root with `SmartLinkingRoot`, and navigate using JSON you define in the **Dynamic Link Tool** — no third-party link services required.
+Configure your project `clientId`, wrap your app root with `SmartLinkingRoot`, and navigate using JSON you define in the **Dynamic Link Tool** — no third-party link services required.
 
 ---
 
@@ -12,11 +12,13 @@ Add the package, wrap your app root with `SmartLinkingRoot`, and navigate using 
 
 - **iOS 15+** via Swift Package Manager
 - **Smart linking** — handles links while the app is installed and on first launch after install
+- **In-app share links** — generate a dynamic link from your app and open the iOS share sheet
 - Resolves links with `?short_code=` via `GET /api/links/code/{code}`
 - Supports HTTPS path-based short codes on your backend domain
 - Parses hosted short-link pages (`https://…/s/{slug}`) for HTML redirects
 - **SwiftUI** helper (`SmartLinkingRoot`) or **UIKit** manual wiring
 - Typed models with full JSON payload support (`customData`, `payloadJSON`)
+- Per-project **`clientId`** header on all backend API requests
 
 ---
 
@@ -65,7 +67,17 @@ Add to your app target’s `Info.plist` (scheme must match the Dynamic Link Tool
 </array>
 ```
 
-### 2. Wire the SDK (SwiftUI)
+### 2. Configure `clientId`
+
+Every project in the Dynamic Link Tool has a unique **`clientId`**. The SDK sends it as an HTTP header on all API requests (`GET /code`, `POST /pending-redirect`, `POST /public-link`).
+
+```swift
+let configuration = DynamicLinkConfiguration(
+    clientId: "YOUR_CLIENT_ID_FROM_DYNAMIC_LINK_TOOL"
+)
+```
+
+### 3. Wire the SDK (SwiftUI)
 
 ```swift
 import SwiftUI
@@ -76,6 +88,7 @@ struct MyApp: App {
     var body: some Scene {
         WindowGroup {
             SmartLinkingRoot(
+                configuration: DynamicLinkConfiguration(clientId: "YOUR_CLIENT_ID"),
                 options: SmartLinkingOptions(
                     onUrl: { url in print("URL:", url) },
                     onSuccess: { data in route(from: data) },
@@ -95,7 +108,7 @@ struct MyApp: App {
 }
 ```
 
-### 3. Test on Simulator
+### 4. Test on Simulator
 
 ```sh
 xcrun simctl openurl booted "myapp://open?short_code=YOUR_CODE"
@@ -103,7 +116,11 @@ xcrun simctl openurl booted "myapp://open?short_code=YOUR_CODE"
 
 ---
 
-## How smart linking works
+## How it works
+
+The SDK covers two flows: **opening links** (deep linking) and **creating links** (in-app share).
+
+### Opening a link (deep linking)
 
 `SmartLinkingRoot` runs three flows automatically:
 
@@ -120,11 +137,29 @@ User taps link
       ↓
 App opens (or installs then opens)
       ↓
-SDK fetches link data from backend
+SDK calls backend with clientId header
       ↓
 onSuccess(data) — JSON in data.customData
       ↓
 Your code navigates to the target screen
+```
+
+### Creating a link from your app (share)
+
+When the user taps **Share** in your app, the SDK calls `POST /api/links/public-link` with your `clientId` header, receives a `short_code`, builds a share URL, and you present the iOS share sheet.
+
+```
+User taps Share in your app
+      ↓
+SDK POST /public-link (clientId header + JSON payload)
+      ↓
+Backend returns short_code
+      ↓
+Share URL: https://backend-dynamiclink.tecocraft.us/{shortCode}
+      ↓
+iOS share sheet opens
+      ↓
+Recipient taps link → same deep link flow as above
 ```
 
 ---
@@ -135,7 +170,7 @@ Your code navigates to the target screen
 
 ```swift
 SmartLinkingRoot(
-    configuration: DynamicLinkConfiguration(), // optional: base URL, timeout, path hosts
+    configuration: DynamicLinkConfiguration(clientId: "YOUR_CLIENT_ID"),
     options: SmartLinkingOptions(
         onUrl: { url in /* raw URL string */ },
         onSuccess: { data in /* resolved link + JSON payload */ },
@@ -174,7 +209,11 @@ ContentView()
 import DynamicLinkSDK
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    let coordinator = SmartLinkingCoordinator()
+    let coordinator = SmartLinkingCoordinator(
+        client: DynamicLinkClient(
+            configuration: DynamicLinkConfiguration(clientId: "YOUR_CLIENT_ID")
+        )
+    )
 
     func application(
         _ application: UIApplication,
@@ -203,6 +242,64 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
+```
+
+### Share a link from your app
+
+Generate a dynamic link at runtime and open the iOS share sheet:
+
+```swift
+let client = DynamicLinkClient(
+    configuration: DynamicLinkConfiguration(clientId: "YOUR_CLIENT_ID")
+)
+
+let result = try await client.createPublicLink(
+    PublicLinkCreateRequest(
+        title: "Product name",
+        description: "Product description",
+        iosScheme: "myapp",
+        data: [
+            "screen_name": .string("product"),
+            "productId": .string("SKU-10026"),
+        ]
+    )
+)
+
+// result.shortCode  → "3SxE2G"
+// result.shareURL   → https://backend-dynamiclink.tecocraft.us/3SxE2G
+```
+
+Present the share sheet with `DynamicLinkShareSheet`:
+
+```swift
+@State private var showShareSheet = false
+@State private var shareURL: URL?
+
+.sheet(isPresented: $showShareSheet) {
+    if let shareURL {
+        DynamicLinkShareSheet(items: [shareURL, "Check this out!"])
+    }
+}
+```
+
+The project is identified by the **`clientId` header** — do not send `projectId` in the request body.
+
+Equivalent API call:
+
+```sh
+curl --location 'https://backend-dynamiclink.tecocraft.us/api/links/public-link' \
+--header 'Content-Type: application/json' \
+--header 'clientId: YOUR_CLIENT_ID' \
+--data '{
+    "title": "Product name",
+    "description": "Product description",
+    "ios_scheme": "myapp",
+    "android_scheme": "myapp",
+    "data": {
+        "screen_name": "product",
+        "productId": "SKU-10026"
+    }
+}'
 ```
 
 ---
@@ -256,13 +353,16 @@ onSuccess: { data in
 
 ## Generating links
 
-Links are created and managed through the **Dynamic Link Tool** web interface:
+You can create links in two ways:
+
+### Option A — Dynamic Link Tool (manual)
 
 1. Register and log in to your account.
 2. Click **Add Project** and fill in your app details — **bundle ID**, store URL, and publication status.
-3. Inside the project, go to **View Links → Add Link**.
-4. Set the title, description, and URL scheme. The scheme must exactly match what is configured in `Info.plist`.
-5. Add a **JSON Data** payload to control in-app navigation:
+3. Copy your project **`clientId`** and use it in `DynamicLinkConfiguration`.
+4. Inside the project, go to **View Links → Add Link**.
+5. Set the title, description, and URL scheme. The scheme must exactly match what is configured in `Info.plist`.
+6. Add a **JSON Data** payload to control in-app navigation:
 
 ```json
 {
@@ -271,9 +371,13 @@ Links are created and managed through the **Dynamic Link Tool** web interface:
 }
 ```
 
-6. Share the generated link or use URLs with `?short_code=`.
+7. Share the generated link or use URLs with `?short_code=`.
 
-The scheme in the tool and `Info.plist` must match exactly.
+### Option B — From your app (automatic share)
+
+Call `createPublicLink(_:)` when the user taps Share. The SDK creates the link, returns a share URL, and you open the iOS share sheet. See [Share a link from your app](#share-a-link-from-your-app) above.
+
+The scheme in the tool / request and `Info.plist` must match exactly.
 
 ---
 
@@ -336,6 +440,7 @@ Use this when your app is **live on the App Store** and you want: tap link → i
 
 **Requirements:**
 
+- `clientId` configured in `DynamicLinkConfiguration`
 - App published on the App Store at least once
 - Bundle ID in Dynamic Link Tool matches your app
 - JSON on the link includes navigation fields (`screen`, `user_id`, etc.)
@@ -397,11 +502,13 @@ swift test
 
 ## Example app
 
-A full sample with JSON-driven navigation (All Users, User Details, User Portfolio) lives in [`Example/`](Example/):
+A full sample with JSON-driven navigation and an in-app **Share** button lives in [`Example/`](Example/):
 
 ```sh
 open Example/DynamicLinkExample.xcodeproj
 ```
+
+Set your `clientId` in `Example/DynamicLinkExample/DemoUser.swift` (`ExampleSDKConfiguration`), then open **Users → User Details → Share** to test link generation and the share sheet.
 
 See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and deferred link testing.
 
@@ -409,11 +516,20 @@ See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and
 
 ## API Reference
 
+### `DynamicLinkConfiguration`
+
+| Property | Description |
+|----------|-------------|
+| `baseURL` | API root (default: `https://backend-dynamiclink.tecocraft.us/api/links`) |
+| `clientId` | **Required.** Unique per project. Sent as `clientId` HTTP header on all API requests |
+| `timeout` | Request timeout in seconds (default: `10`) |
+| `pathShortCodeHosts` | Hosts where `https://host/{code}` uses the last path segment as short code |
+
 ### `SmartLinkingRoot`
 
 | Parameter | Description |
 |-----------|-------------|
-| `configuration` | Optional `DynamicLinkConfiguration` (base URL, timeout, path hosts) |
+| `configuration` | `DynamicLinkConfiguration` — must include `clientId` |
 | `options` | `SmartLinkingOptions` callbacks |
 | `appId` | Defaults to `Bundle.main.bundleIdentifier` |
 | `deviceType` | Defaults to `"IOS"` |
@@ -433,6 +549,8 @@ See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and
 
 | Method | Description |
 |--------|-------------|
+| `createPublicLink(_:)` | `POST {baseURL}/public-link` — creates a shareable link (requires `clientId`) |
+| `shareURL(forShortCode:)` | Builds `https://host/{shortCode}` from the API response |
 | `linkDetails(shortCode:)` | `GET {baseURL}/code/{shortCode}` |
 | `fetchDynamicLink(shortCode:)` | Alias for `linkDetails` |
 | `pendingRedirect(...)` | `POST {baseURL}/pending-redirect` |
@@ -442,6 +560,29 @@ See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and
 | `extractShortCode(from:)` | Read `short_code` from query string |
 | `extractShortCodeWithPathFallback(from:allowedHosts:)` | Query first, then last path segment |
 | `isHostedShortLinkPage(_:apiBaseURL:)` | Detect `https://host/s/{slug}` pages |
+
+### `PublicLinkCreateRequest`
+
+| Field | Description |
+|-------|-------------|
+| `title` | Link title |
+| `description` | Link description |
+| `iosScheme` | iOS URL scheme (must match `Info.plist`) |
+| `androidScheme` | Android scheme (defaults to `iosScheme`) |
+| `data` | JSON navigation payload (`[String: DynamicLinkJSONValue]`) |
+
+> Project identity is sent via the `clientId` header on `DynamicLinkConfiguration`, not in the request body.
+
+### `PublicLinkCreateResult`
+
+| Field | Description |
+|-------|-------------|
+| `shortCode` | Short code returned by the API |
+| `shareURL` | Full HTTPS URL to share |
+
+### `DynamicLinkShareSheet`
+
+SwiftUI wrapper for `UIActivityViewController`. Pass the `shareURL` and an optional message string in `items`.
 
 ### `DynamicLinkResponse`
 
@@ -477,6 +618,8 @@ See [`Example/README.md`](Example/README.md) for screen names, JSON samples, and
 
 | Issue | Fix |
 |-------|-----|
+| `clientId is required` error | Set `DynamicLinkConfiguration(clientId:)` with your project client id from the Dynamic Link Tool |
+| Share / public-link fails | Verify `clientId` header is set and matches your project |
 | Link does not open app | Check URL schemes in `Info.plist`; rebuild after changes |
 | Universal Link opens Safari only | Verify Associated Domains, AASA file, team ID + bundle ID |
 | JSON payload empty | Add JSON Data when creating the link in Dynamic Link Tool |
