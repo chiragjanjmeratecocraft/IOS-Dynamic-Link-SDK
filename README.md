@@ -2,9 +2,9 @@
 
 **Repository:** [github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK](https://github.com/chiragjanjmeratecocraft/IOS-Dynamic-Link-SDK)
 
-A native **Swift / iOS** SDK for **Deep Links**, **Universal Links**, **Deferred Deep Links**, and **in-app link sharing** using the Tecocraft Dynamic Link backend.
+A native **Swift / iOS** SDK for **Deep Links**, **Universal Links**, **Deferred Deep Links**, and **in-app link sharing** using the Tecocraft LinkHas backend.
 
-Configure your project `clientId`, wrap your app root with `SmartLinkingRoot`, and navigate using JSON you define in the **Dynamic Link Tool** — no third-party link services required.
+Configure your project `clientId`, wrap your app root with `SmartLinkingRoot`, and navigate using JSON you define in the **LinkHas Tool** — no third-party link services required.
 
 ---
 
@@ -53,7 +53,7 @@ targets: [
 
 ### 1. Register a URL scheme
 
-Add to your app target’s `Info.plist` (scheme must match the Dynamic Link Tool):
+Add to your app target’s `Info.plist` (scheme must match the LinkHas Tool):
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -69,11 +69,11 @@ Add to your app target’s `Info.plist` (scheme must match the Dynamic Link Tool
 
 ### 2. Configure `clientId`
 
-Every project in the Dynamic Link Tool has a unique **`clientId`**. The SDK sends it as an HTTP header on all API requests (`GET /code`, `POST /pending-redirect`, `POST /public-link`).
+Every project in the LinkHas Tool has a unique **`clientId`**. The SDK sends it as an HTTP header on all API requests (`GET /code`, `POST /pending-redirect`, `POST /public-link`).
 
 ```swift
 let configuration = DynamicLinkConfiguration(
-    clientId: "YOUR_CLIENT_ID_FROM_DYNAMIC_LINK_TOOL"
+    clientId: "YOUR_CLIENT_ID_FROM__LINkHASTOOL"
 )
 ```
 
@@ -306,7 +306,7 @@ curl --location 'https://backend-dynamiclink.tecocraft.us/api/links/public-link'
 
 ## JSON payload and navigation
 
-When you create a link in the **Dynamic Link Tool**, add **JSON Data** to control in-app navigation.
+When you create a link in the **LinkHas Tool**, add **JSON Data** to control in-app navigation.
 
 Example — open a specific user profile:
 
@@ -355,7 +355,7 @@ onSuccess: { data in
 
 You can create links in two ways:
 
-### Option A — Dynamic Link Tool (manual)
+### Option A — LinkHas Tool (manual)
 
 1. Register and log in to your account.
 2. Click **Add Project** and fill in your app details — **bundle ID**, store URL, and publication status.
@@ -442,7 +442,7 @@ Use this when your app is **live on the App Store** and you want: tap link → i
 
 - `clientId` configured in `DynamicLinkConfiguration`
 - App published on the App Store at least once
-- Bundle ID in Dynamic Link Tool matches your app
+- Bundle ID in LinkHas matches your app
 - JSON on the link includes navigation fields (`screen`, `user_id`, etc.)
 - `SmartLinkingRoot` (or coordinator `start`) is wired before first launch completes
 
@@ -618,11 +618,11 @@ SwiftUI wrapper for `UIActivityViewController`. Pass the `shareURL` and an optio
 
 | Issue | Fix |
 |-------|-----|
-| `clientId is required` error | Set `DynamicLinkConfiguration(clientId:)` with your project client id from the Dynamic Link Tool |
+| `clientId is required` error | Set `DynamicLinkConfiguration(clientId:)` with your project client id from the LinkHas Tool |
 | Share / public-link fails | Verify `clientId` header is set and matches your project |
 | Link does not open app | Check URL schemes in `Info.plist`; rebuild after changes |
 | Universal Link opens Safari only | Verify Associated Domains, AASA file, team ID + bundle ID |
-| JSON payload empty | Add JSON Data when creating the link in Dynamic Link Tool |
+| JSON payload empty | Add JSON Data when creating the link in LinkHas Tool |
 | HTTP 404 on fetch | `short_code` does not exist in your project |
 | Deferred link returns nothing | App must be on App Store; runs once per install; reset first-install flag to retest |
 | Deferred deep link response empty | App must be published on the App Store at least once |
